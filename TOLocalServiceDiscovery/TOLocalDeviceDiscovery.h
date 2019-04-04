@@ -21,22 +21,19 @@
 //  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
-@class TOFileLocalDevice;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface TOFileLocalDeviceDiscovery : NSObject
 
+/* All of the service types the discovery service will look for (Must be formatted like "_http._tcp.")  */
+@property (nonatomic, copy) NSArrary<NSString *> *serviceTypes;
+
 /* The list of services discovered by the manager. */
-@property (nonatomic, readonly) NSMutableArray<TOFileLocalDevice *> *devices;
+@property (nonatomic, readonly) NSArray<NSNetService *> *devices;
 
 /* A block triggered each time the number of items in `devices` changes. */
 @property (nonatomic, copy) void (^deviceListUpdatedHandler)(void);
-
-/* A quick check to see if it's possible to perform discovery (ie WiFi is present) */
-@property (nonatomic, readonly) BOOL discoveryAvailable;
 
 /* Begin device discovery */
 - (void)startDiscovery;

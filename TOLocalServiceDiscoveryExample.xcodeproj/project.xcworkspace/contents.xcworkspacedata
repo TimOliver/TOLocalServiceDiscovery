@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:TOLocalDeviceDiscoveryExample.xcodeproj">
+      location = "self:/Users/TiM/Projects/TOLocalDeviceDiscovery/TOLocalServiceDiscoveryExample.xcodeproj">
    </FileRef>
 </Workspace>
