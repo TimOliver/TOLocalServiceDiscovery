@@ -24,199 +24,130 @@
 
 @interface TOLocalServiceDiscovery () <NSNetServiceBrowserDelegate>
 
+// One service browser per the type we want to scan for.
+@property (nonatomic, strong) NSArray<NSNetServiceBrowser *> *serviceBrowsers;
+
+// A mutable version of the array that we will store the services we get back from Bonjour
+@property (nonatomic, strong, readwrite) NSMutableArray<NSNetService *> *services;
+
+// Whether the discovery object is actively running or not
+@property (nonatomic, assign, readwrite) BOOL isRunning;
+
 @end
 
 @implementation TOLocalServiceDiscovery
 
-- (instancetype)init
+#pragma mark - Class Creation -
+
+- (instancetype)initWithSearchServiceTypes:(NSArray<NSString *> *)searchServiceTypes
 {
     if (self = [super init]) {
-        _reachability = [TOReachability reachabilityForWifiConnection];
+        _searchServiceTypes = [searchServiceTypes copy];
     }
-    
+
     return self;
 }
 
-- (void)dealloc
+#pragma mark - Discovery Control -
+
+- (void)startDiscovery
 {
-    [self endServiceDiscovery];
+    if (self.isRunning) { return; }
+
+    // Clear out any previous service records
+    self.serviceBrowsers = nil;
+    if (self.serviceListUpdatedHandler) {
+        self.serviceListUpdatedHandler();
+    }
+
+    // Start scanning for local services
+    [self prepareAndStartServiceBrowsers];
 }
 
-#pragma mark - External State Handling -
-- (void)beginServiceDiscovery
+- (void)endDiscovery
 {
-    if (self.serviceBrowsers || self.netBIOSService) {
-        return;
-    }
-    
-    self.services = [NSMutableArray array];
-    self.pendingAddedServices = [NSMutableArray array];
-    self.pendingRemovedServices = [NSMutableArray array];
-    
-    //set up the service browsers and begin searching
-    if (self.serviceBrowsers == nil) {
-        self.serviceBrowsers = [NSMutableArray array];
-        
-        for (Class service in [ICDownloadService networkProtocolServices]) {
-            if ([service serviceType] == ICDownloadServiceTypeSMB) {
-                continue;
-            }
-        
-            NSNetServiceBrowser *browser = [[NSNetServiceBrowser alloc] init];
-            browser.delegate = self;
-            [browser searchForServicesOfType:[service netServiceType] inDomain:@"local."];
-            [self.serviceBrowsers addObject:browser];
-        }
-    }
-    
-    if (self.netBIOSService == nil) {
-        self.netBIOSService = [[TONetBIOSNameService alloc] init];
-    }
-    
-    __weak typeof(self) weakSelf = self;
-    id addedEntryHandler = ^(TONetBIOSNameServiceEntry *entry) { [weakSelf didAddNetBIOSEntry:entry]; };
-    id removedEntryHandler = ^(TONetBIOSNameServiceEntry *entry) { [weakSelf didRemoveNetBIOSEntry:entry]; };
-    [self.netBIOSService startDiscoveryWithTimeOut:5.0f added:addedEntryHandler removed:removedEntryHandler];
-    
-    id reachabilityHandler = ^(Reachability *reachability) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (reachability.isReachableViaWiFi) {
-                [weakSelf beginServiceDiscovery];
-            }
-            else {
-                [weakSelf endServiceDiscovery];
-            }
-        });
-    };
-    self.reachability.reachableBlock = reachabilityHandler;
-    self.reachability.unreachableBlock = reachabilityHandler;
-    [self.reachability startNotifier];
-    
-    if (self.servicesListUpdatedHandler) {
-        self.servicesListUpdatedHandler();
-    }
+    if (!self.isRunning) { return; }
+
+    [self removeAllServiceBrowsers];
 }
 
-- (void)endServiceDiscovery
+#pragma mark - Internal Browser Management -
+
+- (void)prepareAndStartServiceBrowsers
 {
+    if (self.serviceBrowsers.count > 0) { return; }
+
+    NSMutableArray *browsers = [NSMutableArray array];
+
+    for (NSString *serviceType in self.searchServiceTypes) {
+        NSNetServiceBrowser *browser = [[NSNetServiceBrowser alloc] init];
+        browser.delegate = self;
+        [browser searchForServicesOfType:serviceType inDomain:@""];
+        [browsers addObject:browser];
+    }
+
+    self.serviceBrowsers = [browsers copy];
+}
+
+- (void)removeAllServiceBrowsers
+{
+    if (self.serviceBrowsers.count <= 0) { return; }
+
     for (NSNetServiceBrowser *browser in self.serviceBrowsers) {
         [browser stop];
     }
+
     self.serviceBrowsers = nil;
-    
-    [self.netBIOSService stopDiscovery];
-    self.netBIOSService = nil;
-    
-    self.services = nil;
-    if (self.servicesListUpdatedHandler) {
-        self.servicesListUpdatedHandler();
-    }
-    
-    [self.nextUpdateTimer invalidate];
-    self.nextUpdateTimer = nil;
 }
 
-#pragma mark - Add New Object -
-- (void)addNewServiceObject:(ICLocalService *)service
-{
-    //If the name is blank, forget it
-    if ([service.name stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]].length == 0) {
-        return;
-    }
-    
-    NSComparator comparator = ^(ICLocalService *obj1, ICLocalService *obj2) {
-        return [obj1.name compare:obj2.name];
-    };
-    
-    NSInteger index = [self.services indexOfObject:service
-                                     inSortedRange:(NSRange){0, self.services.count}
-                                     options:NSBinarySearchingInsertionIndex
-                                     usingComparator:comparator];
-                                         
-    [self.services insertObject:service atIndex:index];
-}
-
-#pragma mark - Service Callbacks -
-- (void)didAddNetBIOSEntry:(TONetBIOSNameServiceEntry *)entry
-{
-    ICLocalService *service = [[ICLocalService alloc] initWithNetBIOSEntry:entry];
-    if ([self.services indexOfObject:service] != NSNotFound) {
-        return;
-    }
-    
-    [self.pendingAddedServices addObject:service];
-    [self scheduleUpdateBlockTrigger];
-}
-
-- (void)didRemoveNetBIOSEntry:(TONetBIOSNameServiceEntry *)entry
-{
-    ICLocalService *service = [[ICLocalService alloc] initWithNetBIOSEntry:entry];
-    NSInteger index = [self.services indexOfObject:service];
-    if (index == NSNotFound) {
-        return;
-    }
-    
-    [self.pendingRemovedServices addObject:service];
-    [self scheduleUpdateBlockTrigger];
-}
-
+#pragma mark - Net Service Browser Delegate -
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didFindService:(NSNetService *)service moreComing:(BOOL)moreComing
 {
-    ICLocalService *localService = [[ICLocalService alloc] initWithNetService:service];
-    if ([self.services indexOfObject:localService] != NSNotFound) {
-        return;
+    // Create an array to store these services on the first time.
+    if (!self.services) { self.services = [NSMutableArray array]; }
+
+    // Skip this service if it's already in the list
+    if ([self.services indexOfObject:service] != NSNotFound) { return; }
+
+    // Add the service to the list
+    [(NSMutableArray *)self.services addObject:service];
+
+    // Alert the refresh handler block
+    if (self.serviceListUpdatedHandler) {
+        self.serviceListUpdatedHandler();
     }
-    
-    [self.pendingAddedServices addObject:localService];
-    [self scheduleUpdateBlockTrigger];
 }
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)browser didRemoveService:(NSNetService *)service moreComing:(BOOL)moreComing
 {
-    ICLocalService *localService = [[ICLocalService alloc] initWithNetService:service];
-    NSInteger index = [self.services indexOfObject:localService];
-    if (index == NSNotFound) {
-        return;
-    }
-    
-    [self.pendingRemovedServices addObject:localService];
-    [self scheduleUpdateBlockTrigger];
-}
+    if (!self.services) { return; }
 
-- (void)scheduleUpdateBlockTrigger
-{
-    if (self.nextUpdateTimer) {
-        return;
-    }
-    
-    self.nextUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:kICServiceUpdateDelay target:self selector:@selector(performUpdateBlock) userInfo:nil repeats:NO];
-}
+    // Skip if we never added this service to begin
+    if ([self.services indexOfObject:service] == NSNotFound) { return; }
 
-- (void)performUpdateBlock
-{
-    //Add all of the new objects
-    for (ICLocalService *service in self.pendingAddedServices) {
-        [self addNewServiceObject:service];
+    // Remove the object from our list
+    [(NSMutableArray *)self.services removeObject:service];
+
+    // Alert the refresh handler block
+    if (self.serviceListUpdatedHandler) {
+        self.serviceListUpdatedHandler();
     }
-    [self.pendingAddedServices removeAllObjects];
-    
-    //Remove all pending objects
-    [self.services removeObjectsInArray:self.pendingRemovedServices];
-    [self.pendingRemovedServices removeAllObjects];
-    
-    //Trigger the update block
-    if (self.servicesListUpdatedHandler) {
-        self.servicesListUpdatedHandler();
-    }
-    
-    //remove the timer in preparation of next time
-    self.nextUpdateTimer = nil;
 }
 
 #pragma mark - Accessors -
-- (BOOL)discoveryAvailable
+
+- (void)setSearchServiceTypes:(NSArray<NSString *> *)searchServiceTypes
 {
-    return [self.reachability isReachableViaWiFi];
+    if (searchServiceTypes == _searchServiceTypes) { return; }
+
+    BOOL running = self.isRunning;
+    [self removeAllServiceBrowsers];
+
+    _searchServiceTypes = [searchServiceTypes copy];
+
+    if (running) {
+        [self prepareAndStartServiceBrowsers];
+    }
 }
 
 @end
