@@ -9,7 +9,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--TOLocalDeviceDiscovery-->
+        <!--TOLocalServiceDiscovery-->
         <scene sceneID="aa3-2V-Qw8">
             <objects>
                 <tableViewController id="u5q-Ng-nHH" customClass="ViewController" sceneMemberID="viewController">
@@ -22,7 +22,7 @@
                             <outlet property="delegate" destination="u5q-Ng-nHH" id="VHI-CN-lTK"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="TOLocalDeviceDiscovery" id="IBT-1O-eHx"/>
+                    <navigationItem key="navigationItem" title="TOLocalServiceDiscovery" id="IBT-1O-eHx"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3en-rx-6fT" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

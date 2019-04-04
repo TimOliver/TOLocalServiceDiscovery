@@ -1,6 +1,6 @@
 //
 //  ViewController.m
-//  TOLocalDeviceDiscoveryExample
+//  TOLocalServiceDiscoveryExample
 //
 //  Created by Tim Oliver on 4/4/19.
 //  Copyright © 2019 Tim Oliver. All rights reserved.

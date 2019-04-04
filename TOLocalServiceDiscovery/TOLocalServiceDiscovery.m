@@ -1,5 +1,5 @@
 //
-//  TOFileLocalDeviceDiscovery.m
+//  TOLocalServiceDiscovery.m
 //
 //  Copyright 2016-2019 Timothy Oliver. All rights reserved.
 //
@@ -20,26 +20,13 @@
 //  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
 //  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-#import "TOFileLocalDeviceDiscovery.h"
-#import "TOFileLocalDevice.h"
-#import <TOReachability/TOReachability.h>
+#import "TOLocalServiceDiscovery.h"
 
-const CGFloat kICServiceUpdateDelay = 0.5f;
-
-@interface TOFileLocalDeviceDiscovery () <NSNetServiceBrowserDelegate>
-
-@property (nonatomic, strong, readwrite) NSMutableArray *services;
-@property (nonatomic, strong) NSMutableArray *pendingAddedServices;
-@property (nonatomic, strong) NSMutableArray *pendingRemovedServices;
-@property (nonatomic, strong) TOReachability *reachability;
-
-@property (nonatomic, strong) NSMutableArray *serviceBrowsers;
-
-@property (nonatomic, strong) NSTimer *nextUpdateTimer;
+@interface TOLocalServiceDiscovery () <NSNetServiceBrowserDelegate>
 
 @end
 
-@implementation TOFileLocalDeviceDiscovery
+@implementation TOLocalServiceDiscovery
 
 - (instancetype)init
 {

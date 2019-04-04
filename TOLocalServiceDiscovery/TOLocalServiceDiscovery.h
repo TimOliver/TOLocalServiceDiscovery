@@ -1,5 +1,5 @@
 //
-//  TOFileLocalDeviceDiscovery.h
+//  TOLocalServiceDiscovery.h
 //
 //  Copyright 2016-2019 Timothy Oliver. All rights reserved.
 //
@@ -24,21 +24,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TOFileLocalDeviceDiscovery : NSObject
+@interface TOFileLocalServiceDiscovery : NSObject
 
-/* All of the service types the discovery service will look for (Must be formatted like "_http._tcp.")  */
-@property (nonatomic, copy) NSArrary<NSString *> *serviceTypes;
+/* All of the service types the discovery service will look for (Must be formatted like "_http._tcp.") */
+@property (nonatomic, copy) NSArray<NSString *> *serviceTypes;
 
-/* The list of services discovered by the manager. */
-@property (nonatomic, readonly) NSArray<NSNetService *> *devices;
+/* A list of all of the services discovered so far. */
+@property (nonatomic, readonly) NSArray<NSNetService *> *services;
 
-/* A block triggered each time the number of items in `devices` changes. */
-@property (nonatomic, copy) void (^deviceListUpdatedHandler)(void);
+/* A block triggered each time the number of items in `services` changes. */
+@property (nonatomic, copy) void (^serviceListUpdatedHandler)(void);
 
-/* Begin device discovery */
+/* Begin service discovery */
 - (void)startDiscovery;
 
-/* Stop device discovery and completely deallocate everything */
+/* Stop service discovery and completely deallocate everything */
 - (void)endDiscovery;
 
 @end
