@@ -14,6 +14,8 @@
 		228564112256485400BBECC0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2285640F2256485400BBECC0 /* LaunchScreen.storyboard */; };
 		228564142256485400BBECC0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 228564132256485400BBECC0 /* main.m */; };
 		2285641E2256485400BBECC0 /* TOLocalDeviceDiscoveryExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2285641D2256485400BBECC0 /* TOLocalDeviceDiscoveryExampleTests.m */; };
+		2285642F22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 2285642D22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.m */; };
+		2285643022564BA300BBECC0 /* TOFileLocalDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 2285642E22564BA300BBECC0 /* TOFileLocalDevice.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,10 @@
 		228564192256485400BBECC0 /* TOLocalDeviceDiscoveryExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TOLocalDeviceDiscoveryExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2285641D2256485400BBECC0 /* TOLocalDeviceDiscoveryExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TOLocalDeviceDiscoveryExampleTests.m; sourceTree = "<group>"; };
 		2285641F2256485400BBECC0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2285642B22564BA300BBECC0 /* TOFileLocalDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TOFileLocalDevice.h; sourceTree = "<group>"; };
+		2285642C22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TOFileLocalDeviceDiscovery.h; sourceTree = "<group>"; };
+		2285642D22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TOFileLocalDeviceDiscovery.m; sourceTree = "<group>"; };
+		2285642E22564BA300BBECC0 /* TOFileLocalDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TOFileLocalDevice.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +69,7 @@
 		228563F82256485300BBECC0 = {
 			isa = PBXGroup;
 			children = (
+				2285642A22564B7A00BBECC0 /* TOLocalDeviceDiscovery */,
 				228564032256485300BBECC0 /* TOLocalDeviceDiscoveryExample */,
 				2285641C2256485400BBECC0 /* TOLocalDeviceDiscoveryExampleTests */,
 				228564022256485300BBECC0 /* Products */,
@@ -101,6 +108,17 @@
 				2285641F2256485400BBECC0 /* Info.plist */,
 			);
 			path = TOLocalDeviceDiscoveryExampleTests;
+			sourceTree = "<group>";
+		};
+		2285642A22564B7A00BBECC0 /* TOLocalDeviceDiscovery */ = {
+			isa = PBXGroup;
+			children = (
+				2285642C22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.h */,
+				2285642D22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.m */,
+				2285642B22564BA300BBECC0 /* TOFileLocalDevice.h */,
+				2285642E22564BA300BBECC0 /* TOFileLocalDevice.m */,
+			);
+			path = TOLocalDeviceDiscovery;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -204,8 +222,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				228564092256485300BBECC0 /* ViewController.m in Sources */,
+				2285642F22564BA300BBECC0 /* TOFileLocalDeviceDiscovery.m in Sources */,
 				228564142256485400BBECC0 /* main.m in Sources */,
 				228564062256485300BBECC0 /* AppDelegate.m in Sources */,
+				2285643022564BA300BBECC0 /* TOFileLocalDevice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
