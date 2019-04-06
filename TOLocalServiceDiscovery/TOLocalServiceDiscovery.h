@@ -26,13 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface TOLocalServiceDiscovery : NSObject
 
-/* All of the service types the discovery service will look for (Must be formatted like "_http._tcp.") */
+/** All of the service types the discovery service will look for (Must be formatted like "_http._tcp.") */
 @property (nonatomic, copy) NSArray<NSString *> *searchServiceTypes;
 
-/* A list of all of the services discovered so far. */
+/** A list of all of the services discovered so far. */
 @property (nonatomic, readonly) NSArray<NSNetService *> *services;
 
-/* A block triggered each time the number of items in `services` changes. */
+/** A block triggered each time the number of items in `services` changes. */
 @property (nonatomic, copy) void (^serviceListUpdatedHandler)(void);
 
 /** Whether the discovery object is currently running or not. */
@@ -41,10 +41,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** Create a new discovery object, and prefill it with the types to search for. */
 - (instancetype)initWithSearchServiceTypes:(NSArray<NSString *> *)searchServiceTypes;
 
-/* Begin service discovery */
+/** Begin service discovery. */
 - (void)startDiscovery;
 
-/* Stop service discovery and completely deallocate everything */
+/** Stop service discovery. */
 - (void)endDiscovery;
 
 @end

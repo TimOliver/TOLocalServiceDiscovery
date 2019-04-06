@@ -67,7 +67,6 @@
 - (void)endDiscovery
 {
     if (!self.isRunning) { return; }
-
     [self removeAllServiceBrowsers];
 }
 
